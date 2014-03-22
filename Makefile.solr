@@ -4,25 +4,33 @@ IP           ?= 127.0.0.1
 
 CORENAME     ?= maincore
 
-export
+MAKEFILEDIR  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+SOLR_MKFILE  := $(MAKEFILEDIR)/solr/Makefile
 
-schema-xml:
-	python manage.py build_solr_schema --traceback -f solr/solr/${CORENAME}/conf/schema.xml
+DESTDIR      ?= $(PWD)
+SOLR_DESTDIR := $(DESTDIR)/solr/
 
-solr-instance:
-	make -C solr/ $@
+
+schema-xml: solr
+	python manage.py build_solr_schema --traceback -f $(SOLR_DESTDIR)/solr/$(CORENAME)/conf/schema.xml
+
+solr:
+	mkdir -p $(SOLR_DISTDIR)/solr/$(CORENAME)/conf/
+
+solr-instance: solr
+	make -C $(SOLR_DESTDIR) $@
 
 run-solr: solr-instance schema-xml
-	make -C solr/ $@
+	make -C $(SOLR_DESTDIR)  $@
 
 run-clean-solr: schema-xml
 	@test -f solr/start.jar || (echo 'Run `make solr-instance` before running this' && exit 1)
-	make -C solr/ run-solr
+	make -C $(SOLR_DESTDIR) run-solr
 
 clean:
-	make -C solr/ $@
+	make -C $(DESTDIR)/solr/ $@
 
 mrproper:
-	make -C solr/ $@
+	make -C $(DESTDIR)/solr/ $@
 
-.PHONY: schema-xml solr-instance clean mrproper run-solr
+.PHONY: schema-xml solr-instance clean mrproper run-solr solr

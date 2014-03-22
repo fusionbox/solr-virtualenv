@@ -3,7 +3,7 @@ SHELL=/bin/bash
 all: solr-instance
 
 solr.tgz:
-	wget ${SOLR_TGZ_URL} -O solr.tgz
+	wget $(SOLR_TGZ_URL) -O solr.tgz
 
 solr-content: solr.tgz
 	mkdir -p solr-content
@@ -23,13 +23,13 @@ solr-instance: solr-content webapps/solr.war
 	cp solr-content/dist/solr-cell-*.jar dist/
 
 run-solr:
-	java -Djetty.host="${IP}" -Djetty.port="${PORT}" -jar start.jar
+	java -Djetty.host="$(IP)" -Djetty.port="$(PORT)" -jar start.jar
 
 clean:
 	rm -rf solr.tgz solr-content
 
 mrproper: clean
 	rm -rf contexts etc lib webapps start.jar solr-webapp contrib dist
-	rm -rf solr/${CORENAME}/data
+	rm -rf solr/$(CORENAME)/data
 
 .PHONY: solr-instance clean mrproper run-solr
